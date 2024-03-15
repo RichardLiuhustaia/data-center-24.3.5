@@ -34,7 +34,8 @@ for j in range(T-TD):
 for j in range(T-TD,T):
     model.addConstr(gp.quicksum(L_BW_t[i] for i in range(0,T))>=gp.quicksum(predicted_BWs[i] for i in range(0,j)))
 
-model.addConstrs(A_R_t[i]<=redundant_ratio*A_max for i in range(T))
+model.addConstrs(A_IW_t[i]+A_BW_t[i]<=(1-redundant_ratio)*A_max for i in range(T))
+model.addConstrs(A_IW_t[i]+A_BW_t[i]+1/redundant_ratio*A_R_t[i]>=A_max for i in range(T))
 model.addConstrs(A_IW_t[i]+A_BW_t[i]+A_R_t[i]<=A_max for i in range(T))
 #green certificate related constraints
 model.addConstrs(P_res_t[i]<=P_res_max[i] for i in range(T))
