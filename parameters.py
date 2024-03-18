@@ -24,7 +24,7 @@ C_punish=250
 redundant_ratio=0.01
 
 #unit:MWh
-kk=1
+kk=2
 delta_W_res_fix=30
 W_res_fix=140*kk
 W_res_max=172*kk
