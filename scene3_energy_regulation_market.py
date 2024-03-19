@@ -17,16 +17,16 @@ P_d_t=model1.addVars(24,lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,na
 W_res=model1.addVar(lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='W_res')
 delta_W_res=model1.addVar(lb=-GRB.INFINITY,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='delta_W_res')
 #variables about reserve market and regulation support
-P_reg_t=model1.addVars(24,lb=0,ub=100,vtype=GRB.CONTINUOUS,name='P_reg_t')
+P_reg_t=model1.addVars(24,lb=0,ub=200,vtype=GRB.CONTINUOUS,name='P_reg_t')
 #P_d_t=model1.addVars(24,lb=0,ub=GRB.INFINITY,vtype=GRB.CONTINUOUS,name='P_d_t')
 #constraints
 #power balance constraint:DC's power supply comes from utility grid and PV generation
 model1.addConstrs(1/1000*(P_idle+0.75*P_peak)*(A_BW_t[i]+A_IW_t[i])+1/1000*P_idle*A_R_t[i]+1/1000*(L_BW_t[i]+L_IW_t[i])*(P_peak-P_idle)/L_rate+beta[i]*P_reg_t[i]
-                 <=P_d_t[i]+P_res_t[i] for i in range(T))
-model1.addConstrs(1/6*P_reg_t[i]<=1/1000*P_idle*(A_max-A_BW_t[i]-A_IW_t[i]-A_R_t[i]) for i in range(T))
+                 ==P_d_t[i]+P_res_t[i] for i in range(T))
+model1.addConstrs(1/6*P_reg_t[i]<=1/1000*(P_idle+0.75*P_peak)*(A_max-A_BW_t[i]-A_IW_t[i]-A_R_t[i]) for i in range(T))
 model1.addConstrs(1/1000*(P_idle+0.75*P_peak)*(A_BW_t[i]+A_IW_t[i]+A_R_t[i])+1/1000*(L_BW_t[i]+L_IW_t[i])*(P_peak-P_idle)/L_rate-1/6*P_reg_t[i]>=
                   1/1000*P_idle*redundant_ratio*A_max for i in range(T))
-
+#
 #QoS constraint of interactive loads
 model1.addConstrs(A_IW_t[i]>=L_IW_t[i]/(L_rate-1/C_DT) for i in range(T))
 #interactive loads must be immediately satisfied
@@ -52,10 +52,11 @@ model1.addConstrs(P_d_t[i]>=-P_grid_max for i in range(T))
 
 model1.setObjective(gp.quicksum(L_BW_t[i]*C_BW+L_IW_t[i]*C_IW for i in range(T))
                    +gp.quicksum(reg_cap_price[i]*s_reg*P_reg_t[i]+reg_mil_price[i]*s_reg*R_mil*P_reg_t[i] for i in range(T))
+                   -C_RES*gp.quicksum(P_res_t[i] for i in range(T))
                    -gp.quicksum(P_d_t[i]*electricity_price[i] for i in range(T)),GRB.MAXIMIZE)
 model1.optimize()
 
-P_reg_t_res=np.array([P_reg_t[i].X for i in range(T)])
+P_reg_t_res=np.array([P_reg_t[i].X*beta[i] for i in range(T)])
 
 
 A_BW_t_res=np.array([A_BW_t[i].X for i in range(T)])
@@ -66,8 +67,8 @@ L_IW_t_res=np.array([L_IW_t[i].X for i in range(T)])
 P_res_t_res=np.array([P_res_t[i].X for i in range(T)])
 P_d_t_res=np.array([P_d_t[i].X for i in range(T)])
 
-plt.plot(A_IW_t_res,marker='o',color='r')
-plt.plot(A_BW_t_res,marker='o',color='g')
+plt.plot(L_IW_t_res,marker='o',color='r')
+plt.plot(L_BW_t_res,marker='o',color='g')
 plt.show()
 plt.plot(P_d_t_res,marker='o',color='r')
 plt.plot(electricity_price,marker='o',color='g')
