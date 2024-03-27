@@ -63,6 +63,24 @@ L_IW_t_res=np.array([L_IW_t[i].X for i in range(T)])
 P_res_t_res=np.array([P_res_t[i].X for i in range(T)])
 P_grid_t_res=np.array([P_grid_t[i].X for i in range(T)])
 
+P_res_t_res=np.array([P_res_t[i].X for i in range(T)])
 
+
+plt.rcParams['font.sans-serif'] = ['SimHei']  # 设置中文字体为黑体
+plt.rcParams['axes.unicode_minus'] = False  # 解决负号显示问题
+
+plt.plot(L_IW_t_res,marker='o',color='r',label="交互式负荷处理能力")
+plt.plot(L_BW_t_res,marker='o',color='g',label="批处理负荷处理能力")
+plt.title("交互式负荷、批处理负荷处理能力(场景1)")
+plt.xlabel("时间/小时")
+plt.ylabel("数据处理能力")
+plt.legend()
+plt.show()
+
+
+print(sum(P_res_t_res)/sum(P_res_max))
+print(sum(L_BW_t_res[i]*C_BW+L_IW_t_res[i]*C_IW for i in range(T)))
+print(sum(P_grid_t_res[i]*electricity_price[i] for i in range(T)))
+print(C_RES*sum(P_res_t_res[i] for i in range(T)))
 #plt.plot(L_BW_t_res)
 #plt.show()

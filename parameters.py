@@ -15,17 +15,17 @@ L_rate=4
 C_DT=0.32
 A_max=3.5e4
 T=24
-C_RES=32
+C_RES=28
 C_reduce_max=1
 C_reduce_min=0
 C_BW=2/1e2
 C_IW=1.8/3e2
-C_GC=100
+C_GC=24
 C_punish=250
 redundant_ratio=0.01
 
 #unit:MWh
-kk=2.2
+kk=2.5
 delta_W_res_fix=30*kk
 W_res_fix=176*kk
 W_res_max=206*kk
